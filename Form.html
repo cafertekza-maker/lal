@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --mavi: #1976d2; --bg: #f5f5f5; --kirmizi: #d32f2f; --yesil: #2e7d32; --koyu: #333; }
+    body { font-family: 'Roboto', sans-serif; background: var(--bg); padding: 15px; margin: 0; }
+    
+    .container { max-width: 550px; margin: 0 auto; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    h3 { text-align: center; color: var(--mavi); border-bottom: 2px solid #eee; padding-bottom: 15px; margin-top: 0; }
+
+    label { display: block; font-weight: 500; margin: 12px 0 6px; color: var(--koyu); }
+    .zorunlu::after { content: " *"; color: var(--kirmizi); }
+
+    input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
+    input:focus, select:focus { border-color: var(--mavi); outline: none; }
+    
+    ::placeholder { color: #888; font-style: italic; font-size: 0.9em; }
+
+    .row { display: flex; gap: 15px; }
+    .col { flex: 1; }
+    .hidden { display: none; }
+
+    .btn-save { background: var(--mavi); color: white; width: 100%; padding: 15px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 25px; }
+    .btn-history { background: #607d8b; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 14px; float: right; margin-top: -5px; }
+    .btn-delete { background: none; border: none; font-size: 1.2em; cursor: pointer; color: #ccc; transition: color 0.3s; padding: 0 5px; margin-left:10px; }
+    .btn-delete:hover { color: var(--kirmizi); }
+
+    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); }
+    .modal-content { background-color: #fff; margin: 5% auto; padding: 20px; border: 1px solid #888; width: 95%; max-width: 600px; border-radius: 8px; max-height: 85vh; overflow-y: auto; }
+    .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+    
+    .history-row { border-bottom: 1px solid #eee; padding: 10px 0; }
+    .history-header { display: flex; justify-content: space-between; align-items: center; }
+    .history-info { flex: 1; cursor: pointer; display: flex; align-items: center; }
+    .history-detail { display: none; background: #f1f8ff; padding: 15px; margin-top: 5px; border-radius: 4px; font-size: 0.95em; line-height: 1.6; }
+    .detail-item { margin-bottom: 8px; border-bottom: 1px solid #e0e0e0; padding-bottom: 4px; }
+    .detail-item:last-child { border-bottom: none; }
+    
+    /* Etiketleri kalınlaştırmak için */
+    .detail-label { font-weight: bold; color: #333; display: block; margin-bottom: 3px; }
+
+    .box-period { background: #e3f2fd; padding: 15px; border-radius: 8px; margin-top: 15px; border: 1px solid #90caf9; }
+    .btn-lock { background: none; border: none; font-size: 1.2em; cursor: pointer; float: right; }
+    .locked { color: var(--kirmizi); } .unlocked { color: var(--yesil); }
+    .box-new { background: #fff3e0; padding: 15px; border: 1px dashed #ff9800; border-radius: 8px; margin-top: 10px; }
+    
+    .overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.9); display: none; justify-content: center; align-items: center; z-index: 999; flex-direction: column; }
+    .spinner { border: 5px solid #f3f3f3; border-top: 5px solid var(--mavi); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <div id="loader" class="overlay"><div class="spinner"></div><p id="loadingText" style="margin-top:15px; font-weight:bold;">İşleniyor...</p></div>
+
+  <div id="historyModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeHistory()">×</span>
+      <h3 style="margin-top:0; border-bottom:none;">📋 Bakım Geçmişi</h3>
+      <div id="historyList">Yükleniyor...</div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h3>🛠️ Araç Bakım Girişi</h3>
+    <form id="mainForm">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <label class="zorunlu" style="margin:0;">Araç Plakası</label>
+        <button type="button" class="btn-history" onclick="showHistory()">📋 Geçmişi Gör</button>
+      </div>
+      <select id="plaka" onchange="fetchVehicleData()" style="margin-top:5px;">
+        <option value="">Yükleniyor...</option>
+      </select>
+
+      <div class="row" style="margin-top:10px;">
+        <div class="col">
+          <label class="zorunlu">Mevcut KM</label>
+          <input type="text" id="guncelKm" placeholder="0" oninput="formatInput(this)" inputmode="numeric">
+        </div>
+        <div class="col">
+          <label class="zorunlu">Mevcut Saat</label>
+          <input type="text" id="guncelSaat" placeholder="0" oninput="formatInput(this)" inputmode="numeric">
+        </div>
+      </div>
+
+      <label class="zorunlu">İşlem Tarihi</label>
+      <input type="date" id="tarih">
+
+      <div class="row">
+        <div class="col"><label class="zorunlu">Yapan</label><input type="text" id="yapan" placeholder="Usta"></div>
+        <div class="col"><label class="zorunlu">Kontrol</label><input type="text" id="kontrol" placeholder="Yetkili"></div>
+      </div>
+
+      <hr style="border-top:1px solid #eee; margin:20px 0;">
+
+      <label class="zorunlu">Yapılan İşlem</label>
+      <select id="bakimId" onchange="onMaintenanceChange()">
+        <option value="">Seçiniz...</option>
+      </select>
+
+      <div id="divNew" class="box-new hidden">
+        <label style="color:#e65100; margin-top:0;">➕ Yeni Bakım Adı:</label>
+        <input type="text" id="yeniBakimAdi" placeholder="Örn: Radyatör">
+      </div>
+
+      <div style="margin-top:20px;">
+        <label style="display:flex; align-items:center; cursor:pointer;">
+          <input type="checkbox" id="chkPeriodic" onchange="togglePeriodBox()" style="width:20px; height:20px; margin-right:10px;">
+          Bu Periyodik (Düzenli) Bir Bakımdır
+        </label>
+      </div>
+
+      <div id="divPeriod" class="box-period hidden">
+        <div style="display:flex; justify-content:space-between; font-weight:bold; color:#1976d2; margin-bottom:10px;">
+          <span>📅 Periyot Ayarları</span>
+          <button type="button" id="btnLock" class="btn-lock locked" onclick="toggleLock()">🔒</button>
+        </div>
+        <div class="row">
+          <div class="col"><label>KM</label><input type="number" id="pKm" class="p-input" disabled></div>
+          <div class="col"><label>Saat</label><input type="number" id="pSaat" class="p-input" disabled></div>
+          <div class="col"><label>Gün</label><input type="number" id="pGun" class="p-input" disabled></div>
+        </div>
+      </div>
+
+      <label class="zorunlu">Notlar</label>
+      <textarea id="not" rows="3" placeholder="Detaylar..."></textarea>
+
+      <button type="button" class="btn-save" onclick="save()">KAYDET</button>
+    </form>
+  </div>
+
+  <script>
+    // *** ÖNEMLİ: KENDİ URL'NİZİ BURAYA YAPIŞTIRIN ***
+    const API_URL = "https://script.google.com/macros/s/AKfycby8O-MztAWbGQ4y6KB82Fo26UaWcHSy9c7jCDEectR5W6oa2pdmgXrwviAquqznIixtoQ/exec"; 
+
+    let isLocked = true;
+
+    window.onload = function() {
+      document.getElementById('tarih').valueAsDate = new Date();
+      loadInitData();
+    };
+
+    // --- API FONKSİYONLARI ---
+    async function fetchData(params) {
+      const url = new URL(API_URL);
+      Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
+      const response = await fetch(url);
+      return await response.json();
+    }
+
+    async function postData(data) {
+      const response = await fetch(API_URL, {
+        method: "POST",
+        redirect: "follow",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(data)
+      });
+      return await response.json();
+    }
+
+    // --- FORMATLAMA FONKSİYONU (YENİ) ---
+    function formatInput(elm) {
+      // Sadece rakamları al
+      let val = elm.value.replace(/\D/g, "");
+      if(val !== "") {
+        // Binlik ayracı ekle (TR standardı nokta)
+        elm.value = Number(val).toLocaleString("tr-TR");
+      } else {
+        elm.value = "";
+      }
+    }
+
+    // --- İŞ MANTIĞI ---
+    function loadInitData() {
+      showLoading(true, "Yükleniyor...");
+      fetchData({ islem: "baslangic" }).then(data => {
+        showLoading(false);
+        const elPlaka = document.getElementById('plaka');
+        elPlaka.innerHTML = '<option value="">Seçiniz...</option>';
+        data.plakalar.forEach(p => {
+          let opt = document.createElement('option'); opt.value = p; opt.text = p; elPlaka.appendChild(opt);
+        });
+
+        const elBakim = document.getElementById('bakimId');
+        elBakim.innerHTML = '<option value="">Seçiniz...</option>';
+        data.bakimlar.forEach(b => {
+          let opt = document.createElement('option'); opt.value = b.id; opt.text = b.ad; elBakim.appendChild(opt);
+        });
+        
+        let optNew = document.createElement('option');
+        optNew.value = "YENI"; optNew.text = "➕ YENİ BAKIM EKLE";
+        optNew.style.fontWeight = "bold"; elBakim.appendChild(optNew);
+      }).catch(err => { alert("Veri yükleme hatası: " + err); showLoading(false); });
+    }
+
+    function fetchVehicleData() {
+      const plaka = document.getElementById('plaka').value;
+      if(!plaka) return;
+      
+      const kmInput = document.getElementById('guncelKm');
+      const saatInput = document.getElementById('guncelSaat');
+      
+      kmInput.value = ""; saatInput.value = "";
+      kmInput.placeholder = ""; saatInput.placeholder = "";
+
+      showLoading(true, "Veriler çekiliyor...");
+      fetchData({ islem: "durum", plaka: plaka }).then(status => {
+        showLoading(false);
+        if(status) {
+          kmInput.placeholder = "Son KM: " + formatNumber(status.mevcutKm);
+          saatInput.placeholder = "Son Saat: " + formatNumber(status.mevcutSaat);
+          onMaintenanceChange();
+        }
+      });
+    }
+
+    function onMaintenanceChange() {
+      const plaka = document.getElementById('plaka').value;
+      const bakimId = document.getElementById('bakimId').value;
+      const divNew = document.getElementById('divNew');
+      const chk = document.getElementById('chkPeriodic');
+
+      if (bakimId === "YENI") {
+        divNew.style.display = "block";
+        chk.checked = false; setLock(false); togglePeriodBox(); return;
+      } else { divNew.style.display = "none"; }
+
+      if (!plaka || !bakimId) return;
+
+      showLoading(true, "Kural kontrol ediliyor...");
+      fetchData({ islem: "durum", plaka: plaka, bakimId: bakimId }).then(status => {
+        showLoading(false);
+        if(status) {
+          if(status.sonKural && (status.sonKural.km > 0 || status.sonKural.saat > 0 || status.sonKural.gun > 0)) {
+            chk.checked = true;
+            document.getElementById('pKm').value = status.sonKural.km || "";
+            document.getElementById('pSaat').value = status.sonKural.saat || "";
+            document.getElementById('pGun').value = status.sonKural.gun || "";
+            setLock(true);
+          } else {
+            chk.checked = false; clearInputs(); setLock(false);
+          }
+          togglePeriodBox();
+        }
+      });
+    }
+
+    function showHistory() {
+      const plaka = document.getElementById('plaka').value;
+      if (!plaka) { alert("Lütfen araç seçin."); return; }
+      
+      showLoading(true, "Geçmiş yükleniyor...");
+      document.getElementById('historyModal').style.display = "block";
+      document.getElementById('historyList').innerHTML = "Yükleniyor...";
+
+      fetchData({ islem: "gecmis", plaka: plaka }).then(data => {
+        showLoading(false);
+        if(!data || data.length === 0) {
+          document.getElementById('historyList').innerHTML = "<p>Kayıt yok.</p>"; return;
+        }
+        
+        let html = "";
+        data.forEach((log, index) => {
+          const yapilan = log.bakimYapilanDegerler || {};
+          const hedef = log.bakimYapilacakDegerler || {};
+          const per = log.yapanKontrolEden || {};
+          const sure = log.periyodikSure || {};
+          
+          const tarihGosterim = formatDate(yapilan.tarih) || "-";
+          
+          let yapilanArr = [];
+          if(yapilan.km) yapilanArr.push(`${formatNumber(yapilan.km)} KM`);
+          if(yapilan.saat) yapilanArr.push(`${formatNumber(yapilan.saat)} Saat`);
+          if(yapilan.tarih) yapilanArr.push(formatDate(yapilan.tarih));
+          const yapilanStr = yapilanArr.join(" / ") || "-";
+
+          let hedefArr = [];
+          if(hedef.km) hedefArr.push(`${formatNumber(hedef.km)} KM`);
+          if(hedef.saat) hedefArr.push(`${formatNumber(hedef.saat)} Saat`);
+          if(hedef.tarih) hedefArr.push(formatDate(hedef.tarih));
+          const hedefStr = hedefArr.join(" / ") || "Planlanmadı";
+
+          let sureArr = [];
+          if(sure.km) sureArr.push(`${formatNumber(sure.km)} KM`);
+          if(sure.saat) sureArr.push(`${formatNumber(sure.saat)} Saat`);
+          if(sure.gun) sureArr.push(`${sure.gun} Gün`);
+          const sureStr = sureArr.join(" / ") || "Periyodik Değil";
+
+          // İstenen Format ve Kalın Başlıklar
+          html += `
+          <div class="history-row">
+            <div class="history-header">
+              <div class="history-info" onclick="toggleDetail(${index})">
+                <span style="font-weight:bold; color:#1976d2; width:90px;">${tarihGosterim}</span>
+                <span style="font-weight:500;">${log.bakimAdi}</span>
+                <span style="font-size:0.8em; color:#999; margin-left:5px;">▼</span>
+              </div>
+              <button type="button" class="btn-delete" onclick="deleteItem(${index})" title="Sil">🗑️</button>
+            </div>
+            
+            <div id="detail-${index}" class="history-detail">
+              <div class="detail-item">
+                <b class="detail-label">Bakım Hangi KM/SAAT/TARİH yapıldı:</b> ${yapilanStr}
+              </div>
+              <div class="detail-item">
+                <b class="detail-label">Bakımı Yapan Kişi/Kurum:</b> ${per.yapan || "-"}
+              </div>
+              <div class="detail-item">
+                <b class="detail-label">Aracı Kontrol Eden ve Teslim Alan:</b> ${per.kontrol || "-"}
+              </div>
+              <div class="detail-item">
+                <b class="detail-label">Gelecek Bakım Değerleri:</b> ${hedefStr}
+              </div>
+              <div class="detail-item">
+                <b class="detail-label">Periyodik Bakım Süreleri:</b> ${sureStr}
+              </div>
+              <div style="color:#d32f2f; margin-top:8px;"><em>"${log.not || ""}"</em></div>
+            </div>
+          </div>`;
+        });
+        document.getElementById('historyList').innerHTML = html;
+      });
+    }
+
+    function deleteItem(index) {
+      if(!confirm("Bu kaydı silmek istediğinize emin misiniz?")) return;
+      const plaka = document.getElementById('plaka').value;
+      showLoading(true, "Siliniyor...");
+      
+      postData({ islem: "sil", plaka: plaka, index: index }).then(res => {
+        showLoading(false);
+        if(res.basarili) { alert("✅ Silindi"); showHistory(); }
+        else { alert("❌ " + res.mesaj); }
+      });
+    }
+
+    function save() {
+      const ids = ['plaka', 'guncelKm', 'guncelSaat', 'tarih', 'yapan', 'kontrol', 'not'];
+      for(let id of ids){ if(!document.getElementById(id).value){ alert("Zorunlu alanları doldurun."); return; }}
+      const bakimId = document.getElementById('bakimId').value;
+      if(!bakimId) { alert("İşlem seçin."); return; }
+      
+      const isNew = (bakimId === "YENI");
+      if(isNew && !document.getElementById('yeniBakimAdi').value) { alert("Yeni bakım adı girin."); return; }
+
+      // GÖNDERMEDEN ÖNCE FORMATI TEMİZLE (NOKTALARI SİL)
+      const rawKm = document.getElementById('guncelKm').value.replace(/\./g, "");
+      const rawSaat = document.getElementById('guncelSaat').value.replace(/\./g, "");
+
+      const formData = {
+        plaka: document.getElementById('plaka').value,
+        guncelKm: rawKm, // Temizlenmiş veri
+        guncelSaat: rawSaat, // Temizlenmiş veri
+        tarih: document.getElementById('tarih').value,
+        yapan: document.getElementById('yapan').value,
+        kontrol: document.getElementById('kontrol').value,
+        not: document.getElementById('not').value,
+        bakimId: bakimId,
+        bakimAdi: isNew ? "" : document.getElementById('bakimId').options[document.getElementById('bakimId').selectedIndex].text,
+        yeniBakimMi: isNew,
+        yeniBakimAdi: document.getElementById('yeniBakimAdi').value,
+        periyodikMi: document.getElementById('chkPeriodic').checked,
+        pKm: document.getElementById('pKm').value,
+        pSaat: document.getElementById('pSaat').value,
+        pGun: document.getElementById('pGun').value
+      };
+
+      showLoading(true, "Kaydediliyor...");
+      postData({ islem: "kaydet", form: formData }).then(res => {
+        showLoading(false);
+        if(res.basarili) { 
+          alert("✅ Kaydedildi"); 
+          document.getElementById('mainForm').reset(); 
+          document.getElementById('tarih').valueAsDate = new Date(); 
+          document.getElementById('divNew').style.display="none"; 
+          document.getElementById('divPeriod').style.display="none"; 
+          loadInitData(); 
+        } else { 
+          alert("❌ " + res.mesaj); 
+        }
+      }).catch(err => { showLoading(false); alert("Hata: " + err); });
+    }
+
+    // YARDIMCI FONKSİYONLAR
+    function formatNumber(num) { if (!num && num !== 0) return null; return Number(num).toLocaleString('tr-TR'); }
+    function formatDate(dateStr) { 
+      if (!dateStr) return null; 
+      const d = new Date(dateStr); 
+      return `${("0"+d.getDate()).slice(-2)}.${("0"+(d.getMonth()+1)).slice(-2)}.${d.getFullYear()}`; 
+    }
+    function toggleDetail(i) { const el = document.getElementById('detail-'+i); el.style.display = (el.style.display==="block")?"none":"block"; }
+    function closeHistory() { document.getElementById('historyModal').style.display = "none"; }
+    function togglePeriodBox() { const show = document.getElementById('chkPeriodic').checked; document.getElementById('divPeriod').style.display = show ? "block" : "none"; }
+    function clearInputs() { document.getElementById('pKm').value = ""; document.getElementById('pSaat').value = ""; document.getElementById('pGun').value = ""; }
+    function toggleLock() { setLock(!isLocked); }
+    function setLock(locked) { isLocked = locked; const btn = document.getElementById('btnLock'); const inputs = document.querySelectorAll('.p-input'); if(isLocked){ btn.innerHTML="🔒"; btn.className="btn-lock locked"; inputs.forEach(e=>e.disabled=true); } else { btn.innerHTML="🔓"; btn.className="btn-lock unlocked"; inputs.forEach(e=>e.disabled=false); } }
+    function showLoading(active, text="İşleniyor...") { 
+      document.getElementById('loader').style.display = active ? "flex" : "none"; 
+      document.getElementById('loadingText').innerText = text;
+    }
+  </script>
+</body>
+</html>
