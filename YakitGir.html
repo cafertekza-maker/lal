@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+  <title>Laloğlu Yakıt Takip</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    /* STİL DOSYASI - DEĞİŞİKLİK YOK */
+    :root { --primary: #1e4d2b; --secondary: #2e7d32; --bg: #f4f6f4; --white: #ffffff; --border: #ccc; --red: #d32f2f; --warning: #f57c00; --error-bg: #ffebee; }
+    body { font-family: 'Roboto', sans-serif; background-color: var(--bg); margin: 0; padding: 10px; touch-action: manipulation; }
+    .container { width: 100%; max-width: 100%; background: var(--white); padding: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); box-sizing: border-box; }
+    h2 { color: var(--primary); text-align: center; margin: 10px 0 20px 0; font-size: 20px; }
+    label { font-weight: 700; display: block; margin-top: 15px; color: #333; margin-bottom: 8px; font-size: 14px; }
+    input, select { width: 100%; padding: 14px; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; font-size: 16px; background: #fff; -webkit-appearance: none; transition: border-color 0.3s; }
+    input:focus { outline: 2px solid var(--secondary); border-color: transparent; }
+    input[readonly], input[disabled] { background-color: #e0e0e0; color: #a0a0a0; cursor: not-allowed; border-color: #d0d0d0; }
+    input.input-error { border: 2px solid var(--red) !important; background-color: var(--error-bg) !important; color: var(--red); }
+    .error-message { color: var(--red); font-size: 12px; font-weight: bold; margin-top: 5px; display: none; }
+    ::placeholder { color: #999; opacity: 1; }
+    .row-inputs { display: flex; gap: 10px; }
+    .row-inputs > div { flex: 1; min-width: 0; }
+    .small-font-input input { font-size: 13px; padding: 14px 8px; letter-spacing: -0.5px; }
+    button { width: 100%; padding: 16px; background-color: var(--primary); color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    button:active { transform: scale(0.98); background-color: var(--secondary); }
+    button:disabled { background-color: #ccc; cursor: not-allowed; }
+    /* POPUPS */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10001; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
+    .modal-content { background: white; padding: 25px; border-radius: 12px; width: 100%; max-width: 400px; text-align: center; }
+    .modal-btns { display: flex; gap: 10px; margin-top: 20px; }
+    .btn-cancel { background-color: #d32f2f; margin-top: 0;}
+    .btn-confirm { background-color: var(--secondary); margin-top: 0;}
+    .modal-row { display: flex; justify-content: space-between; margin-bottom: 12px; border-bottom: 1px solid #eee; padding-bottom: 8px;}
+    .modal-label { font-weight: bold; color: #666; font-size: 14px; text-align: left; }
+    .modal-val { font-weight: bold; color: #000; text-align: right; font-size: 14px; }
+    #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.98); z-index: 20000; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+    .spinner { border: 5px solid #f3f3f3; border-top: 5px solid var(--primary); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    /* Custom Dropdown */
+    .custom-select-wrapper { position: relative; }
+    .custom-select-trigger { position: relative; display: block; padding: 14px; font-size: 16px; color: #333; background: #fff; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    .custom-select-trigger:after { content: '▼'; position: absolute; right: 15px; top: 18px; font-size: 10px; color: #666; }
+    .custom-options { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 9999; display: none; flex-direction: column; }
+    .custom-select-wrapper.open .custom-options { display: flex; }
+    .options-header { padding: 15px; background: var(--bg); border-bottom: 1px solid #ddd; display: flex; gap: 10px; align-items: center; }
+    .close-modal-btn { background: var(--red); color: white; border: none; padding: 10px 15px; border-radius: 6px; font-weight: bold; font-size: 14px; margin-top: 0; width: auto; }
+    .option-search-box { flex-grow: 1; } .option-search-box input { margin: 0; }
+    .options-list-scroll { flex-grow: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+    .custom-option { padding: 15px; border-bottom: 1px solid #eee; }
+    .custom-option:active { background-color: #e8f5e9; }
+    .opt-main { font-weight: bold; font-size: 16px; color: #000; }
+    .opt-sub { font-size: 13px; color: #666; margin-top: 4px;}
+    .source-color .opt-main { color: var(--red); }
+    .lock-icon { position: absolute; right: 10px; top: 40px; cursor: pointer; font-size: 20px; padding: 5px; z-index: 5; }
+    #login-screen { display: flex; flex-direction: column; justify-content: center; min-height: 80vh; }
+    #success-screen { display: none; text-align: center; padding-top: 50px; }
+  </style>
+</head>
+<body>
+
+  <div id="loading-overlay">
+    <div class="spinner"></div>
+    <h3 id="loading-text" style="color: #333; margin-top: 20px;">Sistem Yükleniyor...</h3>
+    <p id="loading-subtext">Lütfen Bekleyiniz</p>
+  </div>
+  
+  <div id="success-screen">
+    <h2 style="color:green;">✅ İşlem Başarılı</h2>
+    <p>Veriler kaydedildi.</p>
+    <div style="display:flex; gap:10px; justify-content:center; margin-top:20px;">
+      <button onclick="refreshApp()" style="width: auto; padding: 12px 20px;">Yeni Kayıt Gir</button>
+      <button onclick="closeApp()" style="width: auto; padding: 12px 20px; background-color:#666;">Kapat</button>
+    </div>
+  </div>
+
+  <div id="alert-modal" class="modal-overlay">
+    <div class="modal-content">
+      <h3 style="color: var(--warning);">⚠️ Dikkat</h3>
+      <p>Sistemdeki miktar ile tanktaki miktar uyuşmuyorsa müdahale ediniz.</p>
+      <p style="font-size:14px; color:#333; font-weight:bold;">Kilidi açmak istiyor musunuz?</p>
+      <div class="modal-btns">
+        <button class="btn-cancel" onclick="closeAlertModal(false)">Vazgeç</button>
+        <button class="btn-confirm" onclick="closeAlertModal(true)">Evet, Aç</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="confirm-modal" class="modal-overlay">
+    <div class="modal-content">
+      <h3 style="text-align:center; margin-top:0;">Kayıt Onayı</h3>
+      <div id="confirm-details"></div>
+      <div class="modal-btns">
+        <button class="btn-cancel" onclick="closeConfirmModal()">İPTAL</button>
+        <button class="btn-confirm" onclick="finalSave()">ONAYLA</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="login-screen" class="container" style="display:none;">
+    <h2 style="font-size: 24px;">Laloğlu Yakıt Sistemi<br>Giriş</h2>
+    <div>
+      <label>Kullanıcı Seçin</label>
+      <select id="login-user" style="padding: 16px;"></select>
+    </div>
+    <div>
+      <label>Şifre</label>
+      <input type="password" id="login-pass" placeholder="****" inputmode="numeric" style="padding: 16px;">
+    </div>
+    <button onclick="attemptLogin()">GİRİŞ YAP</button>
+    <p id="login-error" style="color:red; text-align:center; display:none; margin-top:15px;">Hatalı şifre!</p>
+  </div>
+
+  <div id="main-screen" class="container" style="display:none;">
+    <h2>Yakıt Cetveli Giriş</h2>
+    
+    <div style="position:relative;">
+      <label>Tarih ve Saat</label>
+      <input type="datetime-local" id="entry-date" readonly>
+      <span class="lock-icon" onclick="toggleLock('entry-date')">🔒</span>
+    </div>
+
+    <label>Yakıt Verilecek Araç *</label>
+    <div class="custom-select-wrapper" id="receiver-wrapper">
+      <div class="custom-select-trigger" onclick="toggleDropdown('receiver')">
+        <span id="receiver-text">Seçiniz...</span>
+      </div>
+      <input type="hidden" id="receiver-id">
+      <input type="hidden" id="min-km"> 
+      <input type="hidden" id="min-hour">
+      <div class="custom-options">
+        <div class="options-header">
+          <button class="close-modal-btn" onclick="closeAllDropdowns()">KAPAT</button>
+          <div class="option-search-box">
+            <input type="text" id="receiver-search" placeholder="Araç Ara..." onkeyup="filterOptions('receiver')" autocomplete="off">
+          </div>
+        </div>
+        <div id="receiver-list-container" class="options-list-scroll"></div>
+      </div>
+    </div>
+
+    <label>Yakıtın Verileceği Kaynak *</label>
+    <div class="custom-select-wrapper" id="source-wrapper">
+      <div class="custom-select-trigger" onclick="toggleDropdown('source')">
+        <span id="source-text">Seçiniz...</span>
+      </div>
+      <input type="hidden" id="source-id">
+      <div class="custom-options">
+        <div class="options-header">
+          <button class="close-modal-btn" onclick="closeAllDropdowns()">KAPAT</button>
+          <div class="option-search-box">
+            <input type="text" id="source-search" placeholder="Kaynak Ara..." onkeyup="filterOptions('source')" autocomplete="off">
+          </div>
+        </div>
+        <div id="source-list-container" class="options-list-scroll"></div>
+      </div>
+    </div>
+
+    <div class="row-inputs">
+      <div>
+        <label>Seçilen Kaynağın Deposundaki Miktar</label>
+        <input type="text" id="current-stock" readonly style="background:#eee; font-weight:bold;">
+        <input type="hidden" id="original-stock-val">
+      </div>
+      <div style="position:relative;">
+        <label style="font-size:12px; line-height:1.2;">Yakıt Verilmeden Önceki Gerçek Miktar (Sadece Düzeltme)</label>
+        <input type="text" id="new-source-val" placeholder="Otomatik" readonly oninput="formatNumber(this)" inputmode="numeric">
+        <span class="lock-icon" style="top:45px; right:5px;" onclick="triggerLockWarning()">🔒</span>
+      </div>
+    </div>
+
+    <div class="row-inputs">
+      <div>
+        <label>Verilen Yakıt Miktarı (LT) *</label>
+        <input type="text" id="fuel-amount" placeholder="" oninput="formatNumber(this)" inputmode="numeric">
+        <div id="err-amount" class="error-message">Stok Yetersiz!</div>
+      </div>
+      <div>
+        <label>Yakıtı Alan Kişi *</label>
+        <input type="text" id="fuel-receiver-name">
+      </div>
+    </div>
+
+    <div class="row-inputs small-font-input">
+      <div>
+        <label>Araç KM</label>
+        <input type="text" id="new-km" placeholder="Mevcut KM" oninput="formatNumber(this)" inputmode="numeric">
+        <div id="err-km" class="error-message">Mevcuttan düşük!</div>
+      </div>
+      <div>
+        <label>Araç Saat</label>
+        <input type="text" id="new-hour" placeholder="Mevcut Saat" oninput="formatNumber(this)" inputmode="numeric">
+        <div id="err-hour" class="error-message">Mevcuttan düşük!</div>
+      </div>
+    </div>
+
+    <label>Yakıtın Kullanılacağı Şantiye *</label>
+    <select id="site-select">
+      <option value="">Seçiniz...</option>
+    </select>
+
+    <button onclick="validateAndAskConfirmation()" id="save-btn">KAYDET</button>
+  </div>
+
+  <script>
+    // -------------------------------------------------------------------------
+    // BURAYA YENİ ALDIĞINIZ GOOGLE SCRIPT URL'SİNİ YAPIŞTIRIN
+    // -------------------------------------------------------------------------
+    const API_URL = "https://script.google.com/macros/s/AKfycbwFIKlylTZvmON2sEPMHpAp7FlYJ_LBqqluccU-7_L42FatTwzmo0bivXpiylpfutgokQ/exec";
+    // -------------------------------------------------------------------------
+
+    let systemData = {};
+    let currentUser = null;
+    let pendingFormData = null;
+
+    window.onload = function() {
+      fetch(API_URL)
+        .then(response => response.json())
+        .then(data => initSystem(data))
+        .catch(error => {
+          alert("Veri çekilemedi. İnternet bağlantınızı kontrol edin.");
+          console.error("Error:", error);
+        });
+    };
+
+    function initSystem(data) {
+      systemData = data;
+      const userSelect = document.getElementById('login-user');
+      userSelect.innerHTML = "";
+      data.users.forEach(u => {
+        let opt = document.createElement('option'); opt.value = u.name; opt.text = u.name; userSelect.add(opt);
+      });
+      
+      const siteSelect = document.getElementById('site-select');
+      siteSelect.innerHTML = '<option value="">Seçiniz...</option>';
+      data.sites.forEach(s => {
+        let opt = document.createElement('option'); opt.value = s; opt.text = s; siteSelect.add(opt);
+      });
+
+      renderDropdownList('receiver', [...data.vehicles, ...data.sources]);
+      renderDropdownList('source', data.sources);
+      
+      document.getElementById('loading-overlay').style.display = 'none';
+
+      const savedUser = localStorage.getItem('laloglu_user');
+      if (savedUser) { 
+        currentUser = savedUser; 
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('main-screen').style.display = 'block';
+        updateDate();
+      } else {
+        document.getElementById('login-screen').style.display = 'flex';
+      }
+    }
+
+    function updateDate() {
+      const now = new Date();
+      now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+      document.getElementById('entry-date').value = now.toISOString().slice(0,16);
+    }
+
+    function triggerLockWarning() {
+      const el = document.getElementById('new-source-val');
+      if (el.hasAttribute('readonly')) {
+        document.getElementById('alert-modal').style.display = 'flex';
+      } else {
+        el.setAttribute('readonly', true);
+        el.style.backgroundColor = "#f2f2f2";
+        el.placeholder = "Otomatik";
+        checkRealTimeValidation(document.getElementById('fuel-amount'));
+      }
+    }
+
+    function closeAlertModal(confirmed) {
+      document.getElementById('alert-modal').style.display = 'none';
+      if (confirmed) {
+        const el = document.getElementById('new-source-val');
+        el.removeAttribute('readonly');
+        el.style.backgroundColor = "#fff";
+        el.placeholder = "Gerçek Miktarı Giriniz";
+        el.focus();
+        checkRealTimeValidation(document.getElementById('fuel-amount'));
+      }
+    }
+    
+    function toggleLock(id) {
+       const el = document.getElementById(id);
+       if (el.hasAttribute('readonly')) {
+         el.removeAttribute('readonly'); el.style.backgroundColor = "#fff"; el.focus();
+       } else {
+         el.setAttribute('readonly', true); el.style.backgroundColor = "#f2f2f2";
+       }
+    }
+
+    function refreshApp() {
+      document.getElementById('success-screen').style.display = 'none';
+      const loading = document.getElementById('loading-overlay');
+      loading.style.display = 'flex';
+      document.getElementById('loading-text').innerText = "Sistem Yenileniyor...";
+      document.getElementById('loading-subtext').innerText = "Veriler Güncelleniyor";
+      
+      document.getElementById('receiver-id').value = "";
+      document.getElementById('receiver-text').innerText = "Seçiniz...";
+      document.getElementById('source-id').value = "";
+      document.getElementById('source-text').innerText = "Seçiniz...";
+      document.getElementById('current-stock').value = "";
+      document.getElementById('original-stock-val').value = "";
+      document.getElementById('new-source-val').value = "";
+      document.getElementById('new-source-val').setAttribute('readonly', true);
+      document.getElementById('new-source-val').style.backgroundColor = "#f2f2f2";
+      document.getElementById('fuel-amount').value = "";
+      document.getElementById('fuel-receiver-name').value = "";
+      
+      const kmInput = document.getElementById('new-km');
+      const hourInput = document.getElementById('new-hour');
+      kmInput.value = ""; kmInput.removeAttribute('disabled'); kmInput.style.backgroundColor = "#fff";
+      hourInput.value = ""; hourInput.removeAttribute('disabled'); hourInput.style.backgroundColor = "#fff";
+      
+      document.getElementById('site-select').value = "";
+      updateDate();
+      
+      fetch(API_URL).then(res => res.json()).then(data => {
+          initSystem(data);
+          document.getElementById('main-screen').style.display = 'block';
+      });
+    }
+
+    function closeApp() { window.open('','_self').close(); }
+
+    function formatNumber(input) {
+      let val = input.value.replace(/\D/g, '');
+      if (val === "") { input.value = ""; checkRealTimeValidation(input); return; }
+      input.value = parseInt(val).toLocaleString('tr-TR');
+      
+      if (input.id === 'new-source-val') checkRealTimeValidation(document.getElementById('fuel-amount'));
+      else checkRealTimeValidation(input);
+    }
+
+    function checkRealTimeValidation(input) {
+      if(!input) return;
+      if (input.hasAttribute('disabled')) { showError(input.id, 'err-' + input.id.split('-')[1], false); return; }
+
+      const val = cleanNumber(input.value);
+      const id = input.id;
+
+      if (id === 'new-km') {
+        const minKm = parseInt(document.getElementById('min-km').value) || 0;
+        const isVehicle = input.placeholder.includes("Mevcut");
+        if (isVehicle && val > 0 && val < minKm) showError('new-km', 'err-km', true);
+        else showError('new-km', 'err-km', false);
+      }
+      if (id === 'new-hour') {
+        const minHour = parseInt(document.getElementById('min-hour').value) || 0;
+        const isVehicle = input.placeholder.includes("Mevcut");
+        if (isVehicle && val > 0 && val < minHour) showError('new-hour', 'err-hour', true);
+        else showError('new-hour', 'err-hour', false);
+      }
+      if (id === 'fuel-amount') {
+        const systemStock = parseInt(document.getElementById('original-stock-val').value) || 0;
+        const manualStock = cleanNumber(document.getElementById('new-source-val').value);
+        const isLockOpen = !document.getElementById('new-source-val').hasAttribute('readonly');
+        let limit = systemStock;
+        if (isLockOpen) limit = manualStock; 
+        if (val > limit) showError('fuel-amount', 'err-amount', true);
+        else showError('fuel-amount', 'err-amount', false);
+      }
+    }
+
+    function showError(inputId, errorId, isError) {
+      const input = document.getElementById(inputId);
+      const errorMsg = document.getElementById(errorId);
+      if (isError) { input.classList.add('input-error'); errorMsg.style.display = 'block'; } 
+      else { input.classList.remove('input-error'); errorMsg.style.display = 'none'; }
+    }
+
+    function cleanNumber(str) {
+      if(!str) return 0;
+      return parseInt(str.toString().replace(/\./g, '')) || 0;
+    }
+
+    function toggleDropdown(type) {
+      const wrapper = document.getElementById(type + '-wrapper');
+      wrapper.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeAllDropdowns() {
+      document.querySelectorAll('.custom-select-wrapper').forEach(el => el.classList.remove('open'));
+      document.body.style.overflow = '';
+    }
+    function renderDropdownList(type, items) {
+      const container = document.getElementById(type + '-list-container');
+      container.innerHTML = "";
+      items.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'custom-option ' + (item.type === 'source' ? 'source-color' : '');
+        let mainText = item.type === 'vehicle' ? item.plaka : item.isim;
+        let subText = item.type === 'vehicle' ? item.detay : "KAYNAK";
+        div.innerHTML = `<div class="opt-main">${mainText}</div><div class="opt-sub">${subText}</div>`;
+        div.setAttribute('data-search', (mainText + " " + subText).toUpperCase());
+        
+        if(item.type === 'vehicle') {
+          div.dataset.km = item.currentKm;
+          div.dataset.hour = item.currentHour;
+          div.dataset.hasKm = item.hasKm;
+          div.dataset.hasHour = item.hasHour;
+        }
+        
+        div.onclick = function() { selectOption(type, item, mainText, div.dataset); };
+        container.appendChild(div);
+      });
+    }
+    function filterOptions(type) {
+      const filter = document.getElementById(type + '-search').value.toUpperCase();
+      const container = document.getElementById(type + '-list-container');
+      const options = container.getElementsByClassName('custom-option');
+      for (let i = 0; i < options.length; i++) {
+        options[i].style.display = options[i].getAttribute('data-search').indexOf(filter) > -1 ? "" : "none";
+      }
+    }
+    function selectOption(type, item, text, dataset) {
+      document.getElementById(type + '-text').innerText = text;
+      document.getElementById(type + '-id').value = item.id;
+      
+      if (type === 'receiver' && item.type === 'vehicle') {
+        const currentKm = dataset.km ? parseInt(dataset.km).toLocaleString('tr-TR') : "0";
+        const currentHour = dataset.hour ? parseInt(dataset.hour).toLocaleString('tr-TR') : "0";
+        const kmInput = document.getElementById('new-km');
+        const hourInput = document.getElementById('new-hour');
+        
+        document.getElementById('min-km').value = dataset.km;
+        document.getElementById('min-hour').value = dataset.hour;
+
+        // KM AKTİF/PASİF
+        if (dataset.hasKm === "true") {
+          kmInput.removeAttribute('disabled');
+          kmInput.style.backgroundColor = "#fff";
+          kmInput.placeholder = "Mevcut: " + currentKm;
+        } else {
+          kmInput.setAttribute('disabled', true);
+          kmInput.value = "";
+          kmInput.placeholder = "Takip Dışı";
+          showError('new-km', 'err-km', false);
+        }
+
+        // SAAT AKTİF/PASİF
+        if (dataset.hasHour === "true") {
+          hourInput.removeAttribute('disabled');
+          hourInput.style.backgroundColor = "#fff";
+          hourInput.placeholder = "Mevcut: " + currentHour;
+        } else {
+          hourInput.setAttribute('disabled', true);
+          hourInput.value = "";
+          hourInput.placeholder = "Takip Dışı";
+          showError('new-hour', 'err-hour', false);
+        }
+
+      } else if (type === 'receiver' && item.type === 'source') {
+        const kmInput = document.getElementById('new-km');
+        const hourInput = document.getElementById('new-hour');
+        kmInput.setAttribute('disabled', true); kmInput.value = ""; kmInput.placeholder = "-";
+        hourInput.setAttribute('disabled', true); hourInput.value = ""; hourInput.placeholder = "-";
+        document.getElementById('min-km').value = "0";
+        document.getElementById('min-hour').value = "0";
+      }
+      
+      if (type === 'source') {
+        const stock = item.miktar ? parseInt(item.miktar).toLocaleString('tr-TR') : "0";
+        document.getElementById('current-stock').value = stock;
+        document.getElementById('original-stock-val').value = item.miktar;
+      }
+      closeAllDropdowns();
+    }
+
+    function validateAndAskConfirmation() {
+      const receiverId = document.getElementById('receiver-id').value;
+      const sourceId = document.getElementById('source-id').value;
+      const amount = document.getElementById('fuel-amount').value;
+      const receiverName = document.getElementById('fuel-receiver-name').value;
+      const site = document.getElementById('site-select').value;
+      
+      if (document.querySelector('.input-error')) { alert("Lütfen kırmızı ile işaretlenen hatalı alanları düzeltiniz!"); return; }
+      if (!receiverId || !sourceId || !amount || !receiverName || !site) { alert("Lütfen tüm zorunlu alanları (*) doldurunuz."); return; }
+      
+      const isSourceLocked = document.getElementById('new-source-val').hasAttribute('readonly');
+      const manualStockInput = document.getElementById('new-source-val').value;
+      if (!isSourceLocked && !manualStockInput) { alert("Kilidi açtığınız için 'Yakıt Verilmeden Önceki Gerçek Miktar' alanını doldurmalısınız."); return; }
+      
+      const kmInput = document.getElementById('new-km');
+      const hourInput = document.getElementById('new-hour');
+      const isKmActive = !kmInput.hasAttribute('disabled');
+      const isHourActive = !hourInput.hasAttribute('disabled');
+      
+      if ((isKmActive || isHourActive) && !kmInput.value && !hourInput.value) {
+         if (isKmActive && !isHourActive) alert("Lütfen Araç KM bilgisini giriniz.");
+         else if (!isKmActive && isHourActive) alert("Lütfen Araç Saat bilgisini giriniz.");
+         else alert("Lütfen Araç KM veya Saat bilgilerinden en az birini giriniz.");
+         return;
+      }
+
+      pendingFormData = {
+        date: document.getElementById('entry-date').value,
+        receiverId: receiverId,
+        receiverName: receiverName,
+        receiverText: document.getElementById('receiver-text').innerText,
+        sourceId: sourceId,
+        sourceText: document.getElementById('source-text').innerText,
+        amount: amount,
+        newKm: kmInput.value,
+        newHour: hourInput.value,
+        site: site,
+        senderName: currentUser,
+        isCorrection: !isSourceLocked,
+        manualStock: manualStockInput,
+        systemStock: document.getElementById('original-stock-val').value
+      };
+
+      let html = `
+        <div class="modal-row"><span class="modal-label">Alıcı:</span> <span class="modal-val">${pendingFormData.receiverText}</span></div>
+        <div class="modal-row"><span class="modal-label">Kaynak:</span> <span class="modal-val">${pendingFormData.sourceText}</span></div>
+        <div class="modal-row"><span class="modal-label">Miktar:</span> <span class="modal-val">${pendingFormData.amount} Lt</span></div>
+        <div class="modal-row"><span class="modal-label">Şantiye:</span> <span class="modal-val">${pendingFormData.site}</span></div>
+        <div class="modal-row"><span class="modal-label">Alan Kişi:</span> <span class="modal-val">${pendingFormData.receiverName}</span></div>
+      `;
+      document.getElementById('confirm-details').innerHTML = html;
+      document.getElementById('confirm-modal').style.display = 'flex';
+    }
+
+    function closeConfirmModal() { document.getElementById('confirm-modal').style.display = 'none'; }
+
+    function finalSave() {
+      closeConfirmModal();
+      const loading = document.getElementById('loading-overlay');
+      loading.style.display = 'flex';
+      document.getElementById('loading-text').innerText = "KAYDEDİLİYOR...";
+      document.getElementById('loading-subtext').innerText = "Lütfen pencereyi kapatmayın.";
+      
+      fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify(pendingFormData)
+      })
+      .then(response => response.json())
+      .then(result => {
+        if (result.success) {
+          document.getElementById('main-screen').style.display = 'none';
+          document.getElementById('loading-overlay').style.display = 'none';
+          document.getElementById('success-screen').style.display = 'block';
+        } else {
+          alert("Kayıt hatası: " + result.error);
+          document.getElementById('loading-overlay').style.display = 'none';
+        }
+      })
+      .catch(error => {
+        alert("Bağlantı hatası: " + error);
+        document.getElementById('loading-overlay').style.display = 'none';
+      });
+    }
+
+    function attemptLogin() {
+      const selectedUser = document.getElementById('login-user').value;
+      const pass = document.getElementById('login-pass').value;
+      const userObj = systemData.users.find(u => u.name === selectedUser);
+      if (userObj && (userObj.pass == pass)) {
+        currentUser = selectedUser;
+        localStorage.setItem('laloglu_user', currentUser);
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('main-screen').style.display = 'block';
+        updateDate();
+      } else {
+        document.getElementById('login-error').style.display = 'block';
+      }
+    }
+  </script>
+</body>
+</html>
