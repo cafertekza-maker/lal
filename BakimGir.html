@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <base target="_top">
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Araç Bakım Sistemi</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
     :root { --mavi: #1976d2; --bg: #f5f5f5; --kirmizi: #d32f2f; --yesil: #2e7d32; --koyu: #333; }
@@ -38,8 +39,6 @@
     .history-detail { display: none; background: #f1f8ff; padding: 15px; margin-top: 5px; border-radius: 4px; font-size: 0.95em; line-height: 1.6; }
     .detail-item { margin-bottom: 8px; border-bottom: 1px solid #e0e0e0; padding-bottom: 4px; }
     .detail-item:last-child { border-bottom: none; }
-    
-    /* Etiketleri kalınlaştırmak için */
     .detail-label { font-weight: bold; color: #333; display: block; margin-bottom: 3px; }
 
     .box-period { background: #e3f2fd; padding: 15px; border-radius: 8px; margin-top: 15px; border: 1px solid #90caf9; }
@@ -78,11 +77,11 @@
       <div class="row" style="margin-top:10px;">
         <div class="col">
           <label class="zorunlu">Mevcut KM</label>
-          <input type="text" id="guncelKm" placeholder="0" oninput="formatInput(this)" inputmode="numeric">
+          <input type="text" id="guncelKm" placeholder="Araç seçiniz..." oninput="formatInput(this)" inputmode="numeric">
         </div>
         <div class="col">
           <label class="zorunlu">Mevcut Saat</label>
-          <input type="text" id="guncelSaat" placeholder="0" oninput="formatInput(this)" inputmode="numeric">
+          <input type="text" id="guncelSaat" placeholder="Araç seçiniz..." oninput="formatInput(this)" inputmode="numeric">
         </div>
       </div>
 
@@ -133,7 +132,7 @@
   </div>
 
   <script>
-    // *** ÖNEMLİ: KENDİ URL'NİZİ BURAYA YAPIŞTIRIN ***
+    // *** ÖNEMLİ: KENDİ APPS SCRIPT URL'NİZİ BURAYA YAPIŞTIRIN ***
     const API_URL = "https://script.google.com/macros/s/AKfycbwquhbX5jiFQbAE-Yhh4IeMpW4-s-uixYCT-Ms-C7jvHexjaaEiShixpvxoBKnN9WVK/exec"; 
 
     let isLocked = true;
@@ -155,18 +154,18 @@
       const response = await fetch(API_URL, {
         method: "POST",
         redirect: "follow",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        headers: { "Content-Type": "text/plain;charset=utf-8" }, // CORS için text/plain
         body: JSON.stringify(data)
       });
       return await response.json();
     }
 
-    // --- FORMATLAMA FONKSİYONU (YENİ) ---
+    // --- FORMATLAMA FONKSİYONU ---
     function formatInput(elm) {
       // Sadece rakamları al
       let val = elm.value.replace(/\D/g, "");
       if(val !== "") {
-        // Binlik ayracı ekle (TR standardı nokta)
+        // Binlik ayracı ekle (Örn: 120.000)
         elm.value = Number(val).toLocaleString("tr-TR");
       } else {
         elm.value = "";
@@ -178,6 +177,13 @@
       showLoading(true, "Yükleniyor...");
       fetchData({ islem: "baslangic" }).then(data => {
         showLoading(false);
+
+        // HATA KONTROLÜ (forEach hatasını engellemek için)
+        if (data.error) {
+           alert("🚨 SUNUCU HATASI: " + data.error + "\n\nLütfen Code.gs içindeki SPREADSHEET_ID ve SAYFA_ADI değerlerinin doğru olduğundan emin olun.");
+           return; 
+        }
+
         const elPlaka = document.getElementById('plaka');
         elPlaka.innerHTML = '<option value="">Seçiniz...</option>';
         data.plakalar.forEach(p => {
@@ -191,9 +197,13 @@
         });
         
         let optNew = document.createElement('option');
-        optNew.value = "YENI"; optNew.text = "➕ YENİ BAKIM EKLE";
+        optNew.value = "YENI";
+        optNew.text = "➕ YENİ BAKIM EKLE";
         optNew.style.fontWeight = "bold"; elBakim.appendChild(optNew);
-      }).catch(err => { alert("Veri yükleme hatası: " + err); showLoading(false); });
+      }).catch(err => { 
+        showLoading(false);
+        alert("Bağlantı hatası. API_URL'nizi ve izinleri kontrol edin.\nDetay: " + err); 
+      });
     }
 
     function fetchVehicleData() {
@@ -204,12 +214,12 @@
       const saatInput = document.getElementById('guncelSaat');
       
       kmInput.value = ""; saatInput.value = "";
-      kmInput.placeholder = ""; saatInput.placeholder = "";
+      kmInput.placeholder = "Bekleyiniz..."; saatInput.placeholder = "Bekleyiniz...";
 
       showLoading(true, "Veriler çekiliyor...");
       fetchData({ islem: "durum", plaka: plaka }).then(status => {
         showLoading(false);
-        if(status) {
+        if(status && !status.error) {
           kmInput.placeholder = "Son KM: " + formatNumber(status.mevcutKm);
           saatInput.placeholder = "Son Saat: " + formatNumber(status.mevcutSaat);
           onMaintenanceChange();
@@ -233,7 +243,7 @@
       showLoading(true, "Kural kontrol ediliyor...");
       fetchData({ islem: "durum", plaka: plaka, bakimId: bakimId }).then(status => {
         showLoading(false);
-        if(status) {
+        if(status && !status.error) {
           if(status.sonKural && (status.sonKural.km > 0 || status.sonKural.saat > 0 || status.sonKural.gun > 0)) {
             chk.checked = true;
             document.getElementById('pKm').value = status.sonKural.km || "";
@@ -258,8 +268,8 @@
 
       fetchData({ islem: "gecmis", plaka: plaka }).then(data => {
         showLoading(false);
-        if(!data || data.length === 0) {
-          document.getElementById('historyList').innerHTML = "<p>Kayıt yok.</p>"; return;
+        if(!data || data.length === 0 || data.error) {
+          document.getElementById('historyList').innerHTML = "<p>Kayıt bulunamadı.</p>"; return;
         }
         
         let html = "";
@@ -271,6 +281,7 @@
           
           const tarihGosterim = formatDate(yapilan.tarih) || "-";
           
+          // Formatlanmış Veriler
           let yapilanArr = [];
           if(yapilan.km) yapilanArr.push(`${formatNumber(yapilan.km)} KM`);
           if(yapilan.saat) yapilanArr.push(`${formatNumber(yapilan.saat)} Saat`);
@@ -289,7 +300,6 @@
           if(sure.gun) sureArr.push(`${sure.gun} Gün`);
           const sureStr = sureArr.join(" / ") || "Periyodik Değil";
 
-          // İstenen Format ve Kalın Başlıklar
           html += `
           <div class="history-row">
             <div class="history-header">
@@ -334,7 +344,7 @@
         showLoading(false);
         if(res.basarili) { alert("✅ Silindi"); showHistory(); }
         else { alert("❌ " + res.mesaj); }
-      });
+      }).catch(err => { showLoading(false); alert("Hata: " + err); });
     }
 
     function save() {
@@ -352,8 +362,8 @@
 
       const formData = {
         plaka: document.getElementById('plaka').value,
-        guncelKm: rawKm, // Temizlenmiş veri
-        guncelSaat: rawSaat, // Temizlenmiş veri
+        guncelKm: rawKm, // Temizlenmiş (noktasız) saf sayı
+        guncelSaat: rawSaat, // Temizlenmiş (noktasız) saf sayı
         tarih: document.getElementById('tarih').value,
         yapan: document.getElementById('yapan').value,
         kontrol: document.getElementById('kontrol').value,
@@ -403,8 +413,4 @@
     }
   </script>
 </body>
-
 </html>
-
-
-
