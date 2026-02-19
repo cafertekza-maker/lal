@@ -6,7 +6,7 @@
   <title>Laloğlu Yakıt Takip</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
-    /* STİL DOSYASI - DEĞİŞİKLİK YOK */
+    /* STİL DOSYASI */
     :root { --primary: #1e4d2b; --secondary: #2e7d32; --bg: #f4f6f4; --white: #ffffff; --border: #ccc; --red: #d32f2f; --warning: #f57c00; --error-bg: #ffebee; }
     body { font-family: 'Roboto', sans-serif; background-color: var(--bg); margin: 0; padding: 10px; touch-action: manipulation; }
     .container { width: 100%; max-width: 100%; background: var(--white); padding: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); box-sizing: border-box; }
@@ -14,7 +14,10 @@
     label { font-weight: 700; display: block; margin-top: 15px; color: #333; margin-bottom: 8px; font-size: 14px; }
     input, select { width: 100%; padding: 14px; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; font-size: 16px; background: #fff; -webkit-appearance: none; transition: border-color 0.3s; }
     input:focus { outline: 2px solid var(--secondary); border-color: transparent; }
-    input[readonly], input[disabled] { background-color: #e0e0e0; color: #a0a0a0; cursor: not-allowed; border-color: #d0d0d0; }
+    
+    /* PASİF KUTULAR İÇİN KESİN GRİLEŞTİRME (!important eklendi) */
+    input[readonly], input:disabled { background-color: #e0e0e0 !important; color: #888 !important; cursor: not-allowed; border-color: #d0d0d0 !important; }
+    
     input.input-error { border: 2px solid var(--red) !important; background-color: var(--error-bg) !important; color: var(--red); }
     .error-message { color: var(--red); font-size: 12px; font-weight: bold; margin-top: 5px; display: none; }
     ::placeholder { color: #999; opacity: 1; }
@@ -203,7 +206,7 @@
 
   <script>
     // -------------------------------------------------------------------------
-    // BURAYA YENİ ALDIĞINIZ GOOGLE SCRIPT URL'SİNİ YAPIŞTIRIN
+    // BURAYA MEVCUT GOOGLE SCRIPT URL'NİZİ YAPIŞTIRIN
     // -------------------------------------------------------------------------
     const API_URL = "https://script.google.com/macros/s/AKfycbwFIKlylTZvmON2sEPMHpAp7FlYJ_LBqqluccU-7_L42FatTwzmo0bivXpiylpfutgokQ/exec";
     // -------------------------------------------------------------------------
@@ -215,7 +218,9 @@
     window.onload = function() {
       fetch(API_URL)
         .then(response => response.json())
-        .then(data => initSystem(data))
+        .then(data => {
+          initSystem(data); // Debug uyarısı silindi, direkt sistemi başlatır
+        })
         .catch(error => {
           alert("Veri çekilemedi. İnternet bağlantınızı kontrol edin.");
           console.error("Error:", error);
@@ -264,7 +269,6 @@
         document.getElementById('alert-modal').style.display = 'flex';
       } else {
         el.setAttribute('readonly', true);
-        el.style.backgroundColor = "#f2f2f2";
         el.placeholder = "Otomatik";
         checkRealTimeValidation(document.getElementById('fuel-amount'));
       }
@@ -275,7 +279,6 @@
       if (confirmed) {
         const el = document.getElementById('new-source-val');
         el.removeAttribute('readonly');
-        el.style.backgroundColor = "#fff";
         el.placeholder = "Gerçek Miktarı Giriniz";
         el.focus();
         checkRealTimeValidation(document.getElementById('fuel-amount'));
@@ -285,9 +288,9 @@
     function toggleLock(id) {
        const el = document.getElementById(id);
        if (el.hasAttribute('readonly')) {
-         el.removeAttribute('readonly'); el.style.backgroundColor = "#fff"; el.focus();
+         el.removeAttribute('readonly'); el.focus();
        } else {
-         el.setAttribute('readonly', true); el.style.backgroundColor = "#f2f2f2";
+         el.setAttribute('readonly', true);
        }
     }
 
@@ -306,14 +309,13 @@
       document.getElementById('original-stock-val').value = "";
       document.getElementById('new-source-val').value = "";
       document.getElementById('new-source-val').setAttribute('readonly', true);
-      document.getElementById('new-source-val').style.backgroundColor = "#f2f2f2";
       document.getElementById('fuel-amount').value = "";
       document.getElementById('fuel-receiver-name').value = "";
       
       const kmInput = document.getElementById('new-km');
       const hourInput = document.getElementById('new-hour');
-      kmInput.value = ""; kmInput.removeAttribute('disabled'); kmInput.style.backgroundColor = "#fff";
-      hourInput.value = ""; hourInput.removeAttribute('disabled'); hourInput.style.backgroundColor = "#fff";
+      kmInput.value = ""; kmInput.removeAttribute('disabled');
+      hourInput.value = ""; hourInput.removeAttribute('disabled');
       
       document.getElementById('site-select').value = "";
       updateDate();
@@ -382,10 +384,12 @@
       wrapper.classList.add('open');
       document.body.style.overflow = 'hidden';
     }
+    
     function closeAllDropdowns() {
       document.querySelectorAll('.custom-select-wrapper').forEach(el => el.classList.remove('open'));
       document.body.style.overflow = '';
     }
+    
     function renderDropdownList(type, items) {
       const container = document.getElementById(type + '-list-container');
       container.innerHTML = "";
@@ -408,6 +412,7 @@
         container.appendChild(div);
       });
     }
+    
     function filterOptions(type) {
       const filter = document.getElementById(type + '-search').value.toUpperCase();
       const container = document.getElementById(type + '-list-container');
@@ -416,6 +421,7 @@
         options[i].style.display = options[i].getAttribute('data-search').indexOf(filter) > -1 ? "" : "none";
       }
     }
+    
     function selectOption(type, item, text, dataset) {
       document.getElementById(type + '-text').innerText = text;
       document.getElementById(type + '-id').value = item.id;
@@ -429,10 +435,9 @@
         document.getElementById('min-km').value = dataset.km;
         document.getElementById('min-hour').value = dataset.hour;
 
-        // KM AKTİF/PASİF
+        // KM AKTİF/PASİF (Arkaplan rengi CSS'ten gelecek)
         if (dataset.hasKm === "true") {
           kmInput.removeAttribute('disabled');
-          kmInput.style.backgroundColor = "#fff";
           kmInput.placeholder = "Mevcut: " + currentKm;
         } else {
           kmInput.setAttribute('disabled', true);
@@ -441,10 +446,9 @@
           showError('new-km', 'err-km', false);
         }
 
-        // SAAT AKTİF/PASİF
+        // SAAT AKTİF/PASİF (Arkaplan rengi CSS'ten gelecek)
         if (dataset.hasHour === "true") {
           hourInput.removeAttribute('disabled');
-          hourInput.style.backgroundColor = "#fff";
           hourInput.placeholder = "Mevcut: " + currentHour;
         } else {
           hourInput.setAttribute('disabled', true);
