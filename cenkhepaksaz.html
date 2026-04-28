@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="İzmir Bornova 3. Sanayi Sitesi'nde Cenk Hepaksaz yönetiminde uzman Toyota ve Daihatsu özel servisi. Motor bakım, elektrik, elektronik, debriyaj ve mekatronik arıza tespiti.">
+    <meta name="keywords" content="Toyota Servisi İzmir, Daihatsu Özel Servis Bornova, Toyota motor bakımı, debriyaj değişimi, mekatronik arıza tespiti, otomatik şanzıman tamiri, Toyota elektrik elektronik">
+    <title>Mekatronik Otomotiv | Cenk Hepaksaz - Toyota & Daihatsu Özel Servisi İzmir</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        html { scroll-behavior: smooth; }
+        
+        /* Arka Plan Zoom Animasyonu */
+        .hero-bg {
+            background-image: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.75)), url('https://images.unsplash.com/photo-1590362891991-f70287a41639?auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            animation: zoomBg 20s infinite alternate;
+        }
+        
+        @keyframes zoomBg {
+            0% { background-size: 100%; }
+            100% { background-size: 110%; }
+        }
+
+        /* Fade In Up Animasyonları */
+        .fade-in-up {
+            opacity: 0;
+            transform: translateY(40px);
+            animation: fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .delay-100 { animation-delay: 0.2s; }
+        .delay-200 { animation-delay: 0.4s; }
+        .delay-300 { animation-delay: 0.6s; }
+
+        .gallery-img { transition: transform 0.4s ease; }
+        .gallery-img:hover { transform: scale(1.08); }
+        
+        .seo-list li i { color: #dc2626; margin-right: 8px; }
+
+        /* Yüzen WhatsApp Butonu Animasyonu */
+        .pulse-whatsapp {
+            animation: pulse-green 2s infinite;
+        }
+        @keyframes pulse-green {
+            0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(37, 211, 102, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+        }
+    </style>
+</head>
+<body class="font-sans text-gray-800 bg-gray-50 overflow-x-hidden">
+
+    <header class="fixed w-full top-0 z-50">
+        <div class="bg-gray-900 text-gray-200 text-xs md:text-sm py-2">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+                <div class="hidden sm:block">
+                    <i class="fa-solid fa-location-dot text-red-500 mr-2"></i> 3. Sanayi Sitesi 419 Sokak No:6 Bornova / İZMİR
+                </div>
+                <div class="flex space-x-4 md:space-x-6 w-full sm:w-auto justify-center sm:justify-end">
+                    <a href="tel:+905330369780" class="font-bold hover:text-white transition flex items-center">
+                        <i class="fa-solid fa-phone text-red-500 mr-2"></i> 0533 036 97 80
+                    </a>
+                    <span class="hidden md:inline flex items-center">
+                        <i class="fa-solid fa-clock text-red-500 mr-2"></i> Pzt - Cmt: 08:30 - 18:30
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <nav class="w-full bg-white/95 backdrop-blur-sm shadow-md">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-20">
+                    <div class="flex items-center">
+                        <span class="text-2xl font-bold text-red-600 tracking-tight"><i class="fa-solid fa-gears mr-2"></i>Mekatronik Otomotiv</span>
+                    </div>
+                    <div class="hidden lg:flex items-center space-x-6">
+                        <a href="#home" class="text-gray-600 hover:text-red-600 font-medium transition">Ana Sayfa</a>
+                        <a href="#about" class="text-gray-600 hover:text-red-600 font-medium transition">Hakkımızda</a>
+                        <a href="#services" class="text-gray-600 hover:text-red-600 font-medium transition">Uzmanlıklarımız</a>
+                        <a href="#video" class="text-gray-600 hover:text-red-600 font-medium transition">Videomuz</a>
+                        <a href="#gallery" class="text-gray-600 hover:text-red-600 font-medium transition">Galeri</a>
+                        <a href="#contact" class="bg-red-600 text-white px-5 py-2 rounded-md font-medium hover:bg-red-700 transition shadow-md hover:shadow-lg">İletişim</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <section id="home" class="hero-bg h-screen flex items-center pt-32 relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center md:text-left relative z-10 w-full">
+            <div class="fade-in-up inline-block bg-red-600/90 backdrop-blur-sm text-white px-5 py-1.5 rounded-full text-sm font-bold mb-6 tracking-wider uppercase border border-red-500 shadow-[0_0_15px_rgba(220,38,38,0.5)]">
+                İzmir Bornova 3. Sanayi Sitesi
+            </div>
+            <h1 class="fade-in-up delay-100 text-5xl md:text-7xl font-extrabold text-white leading-tight mb-6 drop-shadow-2xl">
+                Toyota & Daihatsu'da <br> <span class="text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-red-600">Kusursuz Performans</span>
+            </h1>
+            <p class="fade-in-up delay-200 text-lg md:text-2xl text-gray-200 mb-10 max-w-2xl font-light drop-shadow-md">
+                Cenk Hepaksaz ustalığıyla; motor mekaniğinden mekatronik sistemlere, elektrik-elektronik arızalardan periyodik bakıma kadar aracınız güvende.
+            </p>
+            <div class="fade-in-up delay-300 flex flex-col sm:flex-row gap-4 md:justify-start justify-center">
+                <a href="#contact" class="group relative px-8 py-4 bg-red-600 text-white font-bold text-lg rounded-md overflow-hidden shadow-[0_0_20px_rgba(220,38,38,0.4)] transition-all hover:scale-105">
+                    <span class="relative z-10">Randevu Al / Ara <i class="fa-solid fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i></span>
+                </a>
+                <a href="#services" class="px-8 py-4 bg-white/10 backdrop-blur-md border border-white/30 text-white font-bold text-lg rounded-md hover:bg-white hover:text-gray-900 transition-all shadow-lg hover:scale-105">
+                    Neler Yapıyoruz?
+                </a>
+            </div>
+        </div>
+        <div class="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-gray-50 to-transparent"></div>
+    </section>
+
+    <section id="services" class="py-24 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-extrabold text-gray-900 mb-4">Uzmanlık Alanlarımız & Hizmetler</h2>
+                <div class="w-24 h-1.5 bg-red-600 mx-auto rounded-full"></div>
+                <p class="mt-6 text-gray-600 max-w-3xl mx-auto text-lg">Toyota ve Daihatsu araçlarınızın ihtiyaç duyduğu tüm detaylı onarım ve bakım işlemleri, Google standartlarında aranan en spesifik arızalar da dahil olmak üzere atölyemizde profesyonelce çözülmektedir.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 hover:-translate-y-2 transition-transform duration-300">
+                    <div class="w-14 h-14 bg-red-50 text-red-600 rounded-xl flex items-center justify-center mb-6 text-2xl shadow-sm border border-red-100">
+                        <i class="fa-solid fa-cogs"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4 text-gray-900 border-b pb-2">Motor & Mekanik</h3>
+                    <ul class="space-y-3 text-gray-600 seo-list">
+                        <li><i class="fa-solid fa-check"></i> Toyota Motor Rektifiye</li>
+                        <li><i class="fa-solid fa-check"></i> Baskı Balata & Debriyaj Değişimi</li>
+                        <li><i class="fa-solid fa-check"></i> Triger Seti / Zincir Değişimi</li>
+                        <li><i class="fa-solid fa-check"></i> Alt Takım & Süspansiyon Onarımı</li>
+                        <li><i class="fa-solid fa-check"></i> Amortisör ve Salıncak Değişimi</li>
+                        <li><i class="fa-solid fa-check"></i> Silindir Kapak Contası Tamiri</li>
+                    </ul>
+                </div>
+
+                <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 hover:-translate-y-2 transition-transform duration-300">
+                    <div class="w-14 h-14 bg-red-50 text-red-600 rounded-xl flex items-center justify-center mb-6 text-2xl shadow-sm border border-red-100">
+                        <i class="fa-solid fa-bolt"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4 text-gray-900 border-b pb-2">Elektrik & Elektronik</h3>
+                    <ul class="space-y-3 text-gray-600 seo-list">
+                        <li><i class="fa-solid fa-check"></i> Tesisat Çekimi ve Onarımı</li>
+                        <li><i class="fa-solid fa-check"></i> Şarj ve Marş Dinamosu Tamiri</li>
+                        <li><i class="fa-solid fa-check"></i> Gösterge Paneli Arızaları</li>
+                        <li><i class="fa-solid fa-check"></i> Sensör Değişimleri (Oksijen vb.)</li>
+                        <li><i class="fa-solid fa-check"></i> Sigorta ve Röle Kontrolleri</li>
+                        <li><i class="fa-solid fa-check"></i> Akü Ölçümü ve Değişimi</li>
+                    </ul>
+                </div>
+
+                <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 hover:-translate-y-2 transition-transform duration-300">
+                    <div class="w-14 h-14 bg-red-50 text-red-600 rounded-xl flex items-center justify-center mb-6 text-2xl shadow-sm border border-red-100">
+                        <i class="fa-solid fa-laptop-medical"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4 text-gray-900 border-b pb-2">Mekatronik & Teşhis</h3>
+                    <ul class="space-y-3 text-gray-600 seo-list">
+                        <li><i class="fa-solid fa-check"></i> Bilgisayarlı Arıza Tespiti</li>
+                        <li><i class="fa-solid fa-check"></i> Toyota Beyin (ECU) Kontrolü</li>
+                        <li><i class="fa-solid fa-check"></i> Otomatik Şanzıman Adaptasyonu</li>
+                        <li><i class="fa-solid fa-check"></i> ABS, ESP, Airbag Hata Silme</li>
+                        <li><i class="fa-solid fa-check"></i> Yarı Otomatik Şanzıman Tamiri</li>
+                        <li><i class="fa-solid fa-check"></i> Boğaz Kelebeği Adaptasyonu</li>
+                    </ul>
+                </div>
+
+                <div class="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 hover:-translate-y-2 transition-transform duration-300">
+                    <div class="w-14 h-14 bg-red-50 text-red-600 rounded-xl flex items-center justify-center mb-6 text-2xl shadow-sm border border-red-100">
+                        <i class="fa-solid fa-oil-can"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4 text-gray-900 border-b pb-2">Periyodik & Genel Bakım</h3>
+                    <ul class="space-y-3 text-gray-600 seo-list">
+                        <li><i class="fa-solid fa-check"></i> 10.000 / 20.000 KM Bakımları</li>
+                        <li><i class="fa-solid fa-check"></i> Yağ, Filtre ve Antifriz Değişimi</li>
+                        <li><i class="fa-solid fa-check"></i> Fren Diski ve Balata Değişimi</li>
+                        <li><i class="fa-solid fa-check"></i> Yazlık / Kışlık Araç Hazırlığı</li>
+                        <li><i class="fa-solid fa-check"></i> V Kayışı ve Rulman Kontrolü</li>
+                        <li><i class="fa-solid fa-check"></i> Sıvı Kaçağı Tespiti (Yağ/Su)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="about" class="py-20 bg-gray-900 text-white relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="flex flex-col md:flex-row items-center gap-12">
+                <div class="w-full md:w-1/2 relative">
+                    <div class="absolute -inset-2 bg-gradient-to-r from-red-600 to-red-900 rounded-lg blur opacity-30"></div>
+                    <img src="https://images.unsplash.com/photo-1605810230434-7631ac76ec81?auto=format&fit=crop&w=800&q=80" alt="Cenk Hepaksaz Motor Bakım" class="relative rounded-lg shadow-2xl opacity-90 border border-gray-700">
+                </div>
+                <div class="w-full md:w-1/2">
+                    <h2 class="text-4xl font-bold mb-6">Ustanızı Tanıyın: Cenk Hepaksaz</h2>
+                    <div class="w-20 h-1.5 bg-red-600 mb-6 rounded-full"></div>
+                    <p class="text-gray-300 mb-6 leading-relaxed text-lg">
+                        Yılların getirdiği tecrübe ile Mekatronik Otomotiv olarak, Japon mühendisliğinin harikası olan <strong>Toyota</strong> ve <strong>Daihatsu</strong> marka araçların dilinden en iyi biz anlıyoruz. İzmir 3. Sanayi Sitesi'nde güler yüzlü ve şeffaf hizmet anlayışımızla yüzlerce mutlu müşteriye ulaştık.
+                    </p>
+                    <p class="text-gray-300 mb-8 leading-relaxed text-lg">
+                        "Aracınız bizim aracımızdır" prensibiyle çalışıyor; ezbere değil, mekatronik donanımlarımız ve bilgisayarlı arıza tespit cihazlarımızla nokta atışı teşhis koyuyoruz.
+                    </p>
+                    <div class="flex items-center gap-4">
+                        <div class="bg-gray-800/50 p-6 rounded-xl text-center flex-1 border border-gray-700 backdrop-blur-sm">
+                            <h4 class="text-red-500 font-extrabold text-3xl mb-1">Daihatsu</h4>
+                            <span class="text-sm text-gray-400 font-medium">Servisi</span>
+                        </div>
+                        <div class="bg-gray-800/50 p-6 rounded-xl text-center flex-1 border border-gray-700 backdrop-blur-sm">
+                            <h4 class="text-red-500 font-extrabold text-3xl mb-1">Toyota</h4>
+                            <span class="text-sm text-gray-400 font-medium">Servisi</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="video" class="py-24 bg-white border-t border-b border-gray-100">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-extrabold text-gray-900 mb-4">Medyada Biz</h2>
+                <div class="w-24 h-1.5 bg-red-600 mx-auto mb-6 rounded-full"></div>
+                <p class="text-gray-600 text-lg">Kanal Ege "Sektör Özel" programında atölyemizi ve vizyonumuzu anlattığımız röportajımızı izleyin.</p>
+            </div>
+            
+            <div class="relative w-full overflow-hidden rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] border-4 border-gray-50" style="padding-top: 56.25%;">
+                <iframe class="absolute top-0 left-0 w-full h-full" 
+                        src="https://www.youtube.com/embed/0Eq-dhvuT2Q" 
+                        title="Mekatronik Otomotiv Sektör Özel Röportajı" 
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowfullscreen>
+                </iframe>
+            </div>
+        </div>
+    </section>
+
+    <section id="gallery" class="py-24 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-extrabold text-gray-900 mb-4">Atölyemizden Kareler</h2>
+                <div class="w-24 h-1.5 bg-red-600 mx-auto rounded-full"></div>
+                <p class="mt-6 text-gray-600 text-lg">Mekatronik Otomotiv servisimizde gerçekleştirdiğimiz onarım işlemlerinden detaylar.</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                <div class="overflow-hidden rounded-xl shadow-md h-72">
+                    <img src="https://images.unsplash.com/photo-1621293954908-907159247fc8?auto=format&fit=crop&w=800&q=80" alt="Motor Onarımı" class="gallery-img w-full h-full object-cover">
+                </div>
+                <div class="overflow-hidden rounded-xl shadow-md h-72">
+                    <img src="https://images.unsplash.com/photo-1530046339160-ce3e530c7d2f?auto=format&fit=crop&w=800&q=80" alt="Araç Alt Takım" class="gallery-img w-full h-full object-cover">
+                </div>
+                <div class="overflow-hidden rounded-xl shadow-md h-72">
+                    <img src="https://images.unsplash.com/photo-1487754180451-c456f719a1fc?auto=format&fit=crop&w=800&q=80" alt="Arıza Tespiti" class="gallery-img w-full h-full object-cover">
+                </div>
+                <div class="overflow-hidden rounded-xl shadow-md h-72">
+                    <img src="https://images.unsplash.com/photo-1504222490345-c075b6008014?auto=format&fit=crop&w=800&q=80" alt="Mekanik Aletler" class="gallery-img w-full h-full object-cover">
+                </div>
+                <div class="overflow-hidden rounded-xl shadow-md h-72">
+                    <img src="https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&w=800&q=80" alt="Lift Üzerinde Araç" class="gallery-img w-full h-full object-cover">
+                </div>
+                <div class="overflow-hidden rounded-xl shadow-md h-72">
+                    <img src="https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=800&q=80" alt="Far ve Kaporta" class="gallery-img w-full h-full object-cover">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="py-24 bg-gray-900 text-white relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-extrabold text-white mb-4">Bize Ulaşın</h2>
+                <div class="w-24 h-1.5 bg-red-600 mx-auto rounded-full"></div>
+            </div>
+
+            <div class="bg-gray-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row border border-gray-700">
+                <div class="bg-gradient-to-br from-red-600 to-red-800 text-white p-12 md:w-2/5 flex flex-col justify-center">
+                    <h3 class="text-3xl font-bold mb-10">İletişim Bilgileri</h3>
+                    
+                    <div class="flex items-start mb-8 group">
+                        <div class="w-12 h-12 bg-red-500/30 rounded-full flex items-center justify-center mr-5 group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-location-dot text-xl text-white"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-xl mb-1">Adres</h4>
+                            <p class="text-red-100 leading-relaxed">3. Sanayi Sitesi 419 Sokak No:6<br>Bornova / İZMİR</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start mb-8 group">
+                        <div class="w-12 h-12 bg-red-500/30 rounded-full flex items-center justify-center mr-5 group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-phone text-xl text-white"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-xl mb-1">Telefon / WhatsApp</h4>
+                            <p class="text-white font-bold text-2xl tracking-wide">0533 036 97 80</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start group">
+                        <div class="w-12 h-12 bg-red-500/30 rounded-full flex items-center justify-center mr-5 group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-clock text-xl text-white"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-xl mb-1">Çalışma Saatleri</h4>
+                            <p class="text-red-100 leading-relaxed">Pzt - Cmt: 08:30 - 18:30<br><span class="text-red-300">Pazar: Kapalı</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="md:w-3/5 h-[400px] md:h-auto">
+                    <iframe 
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3125.405781604106!2d27.199464076388487!3d38.43209897182833!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14b962cdb512e9b9%3A0x6bba84b16c873f2!2zMy4gU2FuYXlpIFNpdGVzaSwgQm9ybm92YS_EsHptaXI!5e0!3m2!1str!2str!4v1700000000000!5m2!1str!2str" 
+                        width="100%" 
+                        height="100%" 
+                        style="border:0;" 
+                        allowfullscreen="" 
+                        loading="lazy" 
+                        referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-black text-gray-400 py-10 text-center">
+        <div class="max-w-7xl mx-auto px-4">
+            <p class="mb-3 text-lg"><span class="text-white font-bold tracking-wide">Mekatronik Otomotiv</span> © 2026 Tüm Hakları Saklıdır.</p>
+            <p class="text-sm text-gray-500">İzmir Bornova 3. Sanayi Sitesi Toyota & Daihatsu Bakım Onarım Servisi | Cenk Hepaksaz</p>
+        </div>
+    </footer>
+
+    <a href="https://wa.me/905330369780" target="_blank" class="fixed bottom-6 right-6 bg-[#25D366] text-white w-16 h-16 rounded-full flex items-center justify-center text-4xl shadow-2xl hover:bg-[#1ebe57] hover:scale-110 transition-all z-50 pulse-whatsapp">
+        <i class="fa-brands fa-whatsapp"></i>
+    </a>
+
+</body>
+</html>
